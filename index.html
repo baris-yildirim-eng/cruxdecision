@@ -179,6 +179,26 @@
     .btn:active { transform: translateY(0); }
     .btn.secondary { background: white; color: var(--ink); border: 1px solid var(--line); }
     
+    .btn-tutorial-top {
+      background: #ffffff;
+      color: var(--green);
+      border: 1px solid #d5d3f7;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: .2s ease;
+    }
+    .btn-tutorial-top:hover {
+      background: #f0effc;
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+
     /* Saved Title Badge Style */
     .saved-title-chip {
       display: inline-flex;
@@ -478,6 +498,68 @@
     .contact-success { display: none; margin-top: 13px; padding: 12px; border-radius: 11px; background: #eeedf9; color: var(--green); font-size: 12px; font-weight: 700; }
     .contact-success.show { display: block; }
 
+    /* Video Modal Styles */
+    .video-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 26, 45, 0.85);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      animation: up .2s ease;
+    }
+    .video-modal-backdrop.active { display: grid; }
+    .video-modal-container {
+      background: #111a2d;
+      border: 1px solid #33405b;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+      overflow: hidden;
+      position: relative;
+    }
+    .video-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-bottom: 1px solid #222d47;
+      color: #ffffff;
+      font: 700 14px Manrope, sans-serif;
+    }
+    .video-modal-close {
+      border: 0;
+      background: rgba(255,255,255,.1);
+      color: #ffffff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      transition: .2s ease;
+    }
+    .video-modal-close:hover { background: var(--red); }
+    .video-modal-body {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+      height: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    .video-modal-body iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     /* Responsive Design Adjustments */
     @media (max-width: 900px) {
       .top { align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
@@ -570,6 +652,11 @@
         <a href="#contact" data-route="contact"><span data-ui-lang="en">Contact</span><span data-ui-lang="tr">İletişim</span></a>
       </nav>
       <div class="top-tools">
+        <button type="button" class="btn-tutorial-top" id="openTutorialBtn" title="How It Works Video">
+          <span>▶</span>
+          <span data-ui-lang="en">How it Works (1m)</span>
+          <span data-ui-lang="tr">Nasıl Çalışır? (1dk)</span>
+        </button>
         <div class="language-switch" role="group" aria-label="Language selection">
           <button type="button" data-language="en">EN</button>
           <button type="button" data-language="tr">TR</button>
@@ -783,16 +870,35 @@
   </main>
 </div>
 
+<!-- TUTORIAL VIDEO MODAL -->
+<div class="video-modal-backdrop" id="videoModal">
+  <div class="video-modal-container">
+    <div class="video-modal-head">
+      <span><span data-ui-lang="en">How Crux Decision Works</span><span data-ui-lang="tr">Crux Decision Nasıl Çalışır?</span></span>
+      <button type="button" class="video-modal-close" id="closeVideoModal" aria-label="Close video">✕</button>
+    </div>
+    <div class="video-modal-body">
+      <iframe id="tutorialIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
 <script>
 const RI={1:0,2:0,3:.58,4:.9,5:1.12,6:1.24,7:1.32,8:1.41,9:1.45};
 let page=0, weights=[], cr=0;
 let curLang = localStorage.getItem('crux-language') || 'en';
 let savedDecisionTitle = '';
 
+// YouTube Video ID'leri
+const tutorialVideos = {
+  tr: 'MGw-N8Y0eUI',
+  en: 'TyXgGoZH5eM'
+};
+
 let criteria = [];
 let comparisons={}, alternatives=[];
 
-// SADECE KRİTER İÇEREN ŞABLONLAR (Alternatifler kaldırıldı)
+// SADECE KRİTER İÇEREN ŞABLONLAR
 const templateData={
   car:{
     en:{title:'Car Purchase', criteria:['Purchase cost','Fuel economy','Safety','Comfort']},
@@ -830,6 +936,23 @@ const templateData={
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+
+// Video Modal Açma / Kapama Fonksiyonları
+function openTutorial() {
+  const videoId = tutorialVideos[curLang] || tutorialVideos.en;
+  $('#tutorialIframe').src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+  $('#videoModal').classList.add('active');
+}
+
+function closeTutorial() {
+  $('#tutorialIframe').src = '';
+  $('#videoModal').classList.remove('active');
+}
+
+$('#openTutorialBtn').onclick = openTutorial;
+$('#closeVideoModal').onclick = closeTutorial;
+$('#videoModal').onclick = e => { if (e.target === $('#videoModal')) closeTutorial(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#videoModal').classList.contains('active')) closeTutorial(); });
 
 function setTitle(titleText) {
   savedDecisionTitle = titleText.trim();
@@ -940,7 +1063,7 @@ function applyTemplate(key){
   
   if(data.title) setTitle(data.title);
   criteria=data.criteria.map(title=>({id:crypto.randomUUID(),title}));
-  alternatives=[]; // Alternatifler asla önerilmez, temiz başlar
+  alternatives=[]; 
   comparisons={}; weights=[]; cr=0; $('#finalArea').innerHTML='';
   renderCriteria();
   let status=$('#templateStatus');
