@@ -178,6 +178,34 @@
     .btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
     .btn:active { transform: translateY(0); }
     .btn.secondary { background: white; color: var(--ink); border: 1px solid var(--line); }
+    
+    /* Saved Title Badge Style */
+    .saved-title-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #f0effc;
+      border: 1px solid #d5d3f7;
+      padding: 10px 16px;
+      border-radius: 14px;
+      font: 700 15px Manrope, sans-serif;
+      color: var(--green);
+      margin-top: 6px;
+    }
+    .saved-title-chip button {
+      border: 0;
+      background: #ffffff;
+      color: var(--muted);
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+    .saved-title-chip button:hover { color: var(--red); }
+
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
     .chip {
       background: #f0f1f6;
@@ -253,6 +281,7 @@
     .alt input[type=range] { width: 100%; }
     .score { font-weight: 800; text-align: right; font-size: 13px; }
     .x { border: 0; background: none; color: #8a958f; cursor: pointer; font-size: 18px; line-height: 1; padding: 4px; }
+    
     .winner {
       background: #111a2d;
       color: white;
@@ -561,18 +590,22 @@
           <span data-ui-lang="tr">Karar konunuzu ve kriterlerinizi belirleyin veya aşağıdaki hazır senaryolardan biriyle hızlıca başlayın.</span>
         </p>
 
-        <!-- Soru Odaklı Karar Konusu Alanı -->
+        <!-- Soru Odaklı Karar Konusu ve Ekleme/Kaldırma Mekanizması -->
         <div class="card" style="margin-bottom:20px;padding:18px 22px;background:#ffffff;border:1px solid #dbe1ee;">
-          <label for="decisionTitle" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
+          <label for="decisionTitleInput" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
             <span data-ui-lang="en">What are you deciding on?</span><span data-ui-lang="tr">Ne hakkında karar vermek istiyorsunuz?</span>
           </label>
-          <input id="decisionTitle" placeholder="E.g. 2026 Vehicle Selection, Career Move…" value="">
+          <div id="titleInputArea" class="input-row">
+            <input id="decisionTitleInput" placeholder="E.g. 2026 Vehicle Selection, Career Move…" value="">
+            <button type="button" class="btn" id="saveTitleBtn"><span data-ui-lang="en">Set</span><span data-ui-lang="tr">Ekle</span></button>
+          </div>
+          <div id="savedTitleDisplay" style="display:none"></div>
         </div>
 
         <div class="template-section">
           <div class="template-head">
             <h3><span data-ui-lang="en">Ready-made Decision Scenarios</span><span data-ui-lang="tr">Hazır Karar Senaryoları</span></h3>
-            <span><span data-ui-lang="en">Pick and customize any template below</span><span data-ui-lang="tr">İstediğiniz senaryoyu seçip özelleştirebilirsiniz</span></span>
+            <span><span data-ui-lang="en">Pick and customize criteria below</span><span data-ui-lang="tr">Kriterleri seçip özelleştirebilirsiniz</span></span>
           </div>
           <div class="template-carousel">
             <button type="button" class="template-card" data-template="car"><span class="template-icon">🚙</span><strong><span data-ui-lang="en">Car Purchase</span><span data-ui-lang="tr">Araç Seçimi</span></strong><small><span data-ui-lang="en">Cost, fuel, safety, comfort</span><span data-ui-lang="tr">Maliyet, yakıt, güvenlik, konfor</span></small></button>
@@ -754,47 +787,86 @@
 const RI={1:0,2:0,3:.58,4:.9,5:1.12,6:1.24,7:1.32,8:1.41,9:1.45};
 let page=0, weights=[], cr=0;
 let curLang = localStorage.getItem('crux-language') || 'en';
+let savedDecisionTitle = '';
 
 let criteria = [];
 let comparisons={}, alternatives=[];
 
+// SADECE KRİTER İÇEREN ŞABLONLAR (Alternatifler kaldırıldı)
 const templateData={
   car:{
-    en:{title:'Vehicle Selection', criteria:['Purchase cost','Fuel economy','Safety','Comfort'],alternatives:['Sedan (Gas/Hybrid)','Compact SUV','Electric Hatchback']},
-    tr:{title:'Araç Seçimi', criteria:['Satın alma maliyeti','Yakıt ekonomisi','Güvenlik','Konfor'],alternatives:['Sedan (Benzin/LPG)','C-SUV (Tam Hibrit)','Hatchback (Elektrikli)']}
+    en:{title:'Car Purchase', criteria:['Purchase cost','Fuel economy','Safety','Comfort']},
+    tr:{title:'Araç Seçimi', criteria:['Satın alma maliyeti','Yakıt ekonomisi','Güvenlik','Konfor']}
   },
   career:{
-    en:{title:'Career Choice', criteria:['Salary','Career growth','Work-life balance','Job security'],alternatives:['Corporate Role','Early-stage Startup','Independent Consulting']},
-    tr:{title:'Kariyer Kararı', criteria:['Maaş','Kariyer gelişimi','İş-yaşam dengesi','İş güvencesi'],alternatives:['Kurumsal Şirket','Erken Aşama Girişim','Bağımsız / Danışmanlık']}
+    en:{title:'Career Choice', criteria:['Salary','Career growth','Work-life balance','Job security']},
+    tr:{title:'Kariyer Kararı', criteria:['Maaş','Kariyer gelişimi','İş-yaşam dengesi','İş güvencesi']}
   },
   laptop:{
-    en:{title:'Laptop Selection', criteria:['Processing Power','Battery Life','Portability','Price/Value'],alternatives:['Lightweight Ultrabook','High-End Workstation','Balanced Mid-Range']},
-    tr:{title:'Bilgisayar Alımı', criteria:['İşlemci Gücü','Pil Ömrü','Taşınabilirlik','Fiyat/Performans'],alternatives:['Hafif Ultrabook','Güçlü İş İstasyonu','Fiyat/Performans Modeli']}
+    en:{title:'Laptop Choice', criteria:['Processing Power','Battery Life','Portability','Price/Value']},
+    tr:{title:'Bilgisayar Alımı', criteria:['İşlemci Gücü','Pil Ömrü','Taşınabilirlik','Fiyat/Performans']}
   },
   house:{
-    en:{title:'Home Purchase', criteria:['Price','Location & Transit','Building Age','Floor Area'],alternatives:['Downtown Apartment','Modern Gated Complex','Suburban Detached House']},
-    tr:{title:'Ev / Konut Seçimi', criteria:['Fiyat','Konum & Ulaşım','Bina Yaşı','Metrekare'],alternatives:['Merkezi 2+1 Daire','Yeni Rezidans / Site','Geniş Bahçeli Müstakil']}
+    en:{title:'Home Selection', criteria:['Price','Location & Transit','Building Age','Floor Area']},
+    tr:{title:'Ev / Konut Seçimi', criteria:['Fiyat','Konum & Ulaşım','Bina Yaşı','Metrekare']}
   },
   relocation:{
-    en:{title:'City Relocation', criteria:['Cost of Living','Job Market','Lifestyle','Transit'],alternatives:['Metropolitan Capital','Coastal City','Quiet Tech Hub']},
-    tr:{title:'Şehir Değişimi', criteria:['Yaşam Maliyeti','İş Olanakları','Sosyal Yaşam','Ulaşım'],alternatives:['Büyükşehir / Merkez','Kıyı / Sahil Kenti','Gelişen Sanayi / Teknoloji Şehri']}
+    en:{title:'City Relocation', criteria:['Cost of Living','Job Market','Lifestyle','Transit']},
+    tr:{title:'Şehir Değişimi', criteria:['Yaşam Maliyeti','İş Olanakları','Sosyal Yaşam','Ulaşım']}
   },
   education:{
-    en:{title:'Master’s Degree Selection', criteria:['Academic Prestige','Tuition Cost','Career Network','City Advantage'],alternatives:['Top Public University','Private University','International Program']},
-    tr:{title:'Yüksek Lisans Tercihi', criteria:['Akademik Prestij','Eğitim Ücreti','Kariyer Ağı','Şehir Avantajı'],alternatives:['Köklü Devlet Üniversitesi','Burslu Vakıf Üniversitesi','Yurtdışı Yüksek Lisans']}
+    en:{title:'Master’s Degree', criteria:['Academic Prestige','Tuition Cost','Career Network','City Advantage']},
+    tr:{title:'Yüksek Lisans Tercihi', criteria:['Akademik Prestij','Eğitim Ücreti','Kariyer Ağı','Şehir Avantajı']}
   },
   invest:{
-    en:{title:'Investment Asset Choice', criteria:['Potential Return','Risk Level','Liquidity','Time Horizon'],alternatives:['Equity Index Fund','Real Estate Property','Precious Metals / FX']},
-    tr:{title:'Yatırım Aracı Seçimi', criteria:['Potansiyel Getiri','Risk Seviyesi','Likidite','Vade Süresi'],alternatives:['Hisse Senedi Fonu','Gayrimenkul Yatırımı','Kıymetli Maden / Döviz']}
+    en:{title:'Investment Asset', criteria:['Potential Return','Risk Level','Liquidity','Time Horizon']},
+    tr:{title:'Yatırım Aracı Seçimi', criteria:['Potansiyel Getiri','Risk Seviyesi','Likidite','Vade Süresi']}
   },
   vacation:{
-    en:{title:'Vacation Destination', criteria:['Total budget','Travel time','Weather','Activities'],alternatives:['Coastal Resort','Cultural City Tour','Quiet Nature Retreat']},
-    tr:{title:'Tatil Rotası Seçimi', criteria:['Toplam bütçe','Ulaşım süresi','Hava durumu','Aktiviteler'],alternatives:['Sahil / Resort Tatili','Kültürel Şehir Turu','Sakin Doğa Kaçamağı']}
+    en:{title:'Vacation Route', criteria:['Total budget','Travel time','Weather','Activities']},
+    tr:{title:'Tatil Rotası Seçimi', criteria:['Toplam bütçe','Ulaşım süresi','Hava durumu','Aktiviteler']}
   }
 };
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+
+function setTitle(titleText) {
+  savedDecisionTitle = titleText.trim();
+  if(savedDecisionTitle) {
+    $('#titleInputArea').style.display = 'none';
+    $('#savedTitleDisplay').innerHTML = `
+      <div class="saved-title-chip">
+        <span>📌 ${esc(savedDecisionTitle)}</span>
+        <button type="button" id="removeTitleBtn" title="Değiştir / Kaldır">×</button>
+      </div>
+    `;
+    $('#savedTitleDisplay').style.display = 'block';
+    $('#removeTitleBtn').onclick = removeTitle;
+  } else {
+    removeTitle();
+  }
+}
+
+function removeTitle() {
+  savedDecisionTitle = '';
+  $('#decisionTitleInput').value = '';
+  $('#titleInputArea').style.display = 'flex';
+  $('#savedTitleDisplay').style.display = 'none';
+  $('#savedTitleDisplay').innerHTML = '';
+  $('#decisionTitleInput').focus();
+}
+
+function resetAllData(){
+  criteria = [];
+  alternatives = [];
+  comparisons = {};
+  weights = [];
+  cr = 0;
+  removeTitle();
+  $('#finalArea').innerHTML = '';
+  renderCriteria();
+}
 
 function setLanguage(lang) {
   curLang = lang;
@@ -806,7 +878,7 @@ function setLanguage(lang) {
   
   const placeholders = {
     en: {
-      decisionTitle: 'E.g. 2026 Vehicle Selection, Career Move…',
+      decisionTitleInput: 'E.g. 2026 Vehicle Selection, Career Move…',
       criterionInput: 'E.g. Price, quality, speed…',
       altInput: 'E.g. Option A',
       feedbackName: 'How should we address you?',
@@ -814,7 +886,7 @@ function setLanguage(lang) {
       feedbackMessage: 'What could we do better?'
     },
     tr: {
-      decisionTitle: 'Örn. 2026 Araç Seçimi, Kariyer Değişimi…',
+      decisionTitleInput: 'Örn. 2026 Araç Seçimi, Kariyer Değişimi…',
       criterionInput: 'Örn. Fiyat, kalite, hız…',
       altInput: 'Örn. Seçenek A',
       feedbackName: 'Size nasıl hitap edelim?',
@@ -864,17 +936,17 @@ function addCriterion(){
 function applyTemplate(key){
   let data=templateData[key]?.[curLang];
   if(!data) return;
-  if((criteria.length||alternatives.length)&&!confirm(curLang==='en'?'This will replace current criteria and options. Continue?':'Bu işlem mevcut kriter ve alternatiflerinizi değiştirecek. Devam edilsin mi?'))return;
+  if((criteria.length||alternatives.length)&&!confirm(curLang==='en'?'This will replace current criteria. Continue?':'Bu işlem mevcut kriterlerinizi değiştirecek. Devam edilsin mi?'))return;
   
-  if(data.title) $('#decisionTitle').value = data.title;
+  if(data.title) setTitle(data.title);
   criteria=data.criteria.map(title=>({id:crypto.randomUUID(),title}));
-  alternatives=data.alternatives.map(title=>({id:crypto.randomUUID(),title,scores:Object.fromEntries(criteria.map(c=>[c.id,5]))}));
+  alternatives=[]; // Alternatifler asla önerilmez, temiz başlar
   comparisons={}; weights=[]; cr=0; $('#finalArea').innerHTML='';
   renderCriteria();
   let status=$('#templateStatus');
-  status.textContent = curLang==='en'?'Template loaded. You can edit every criterion and option.':'Taslak yüklendi. Tüm kriterleri ve seçenekleri düzenleyebilirsiniz.';
+  status.textContent = curLang==='en'?'Template criteria loaded.':'Şablon kriterleri yüklendi.';
   status.classList.add('show');
-  setTimeout(()=>status.classList.remove('show'),3500);
+  setTimeout(()=>status.classList.remove('show'),3000);
 }
 
 function prepareComparisons(){
@@ -975,7 +1047,7 @@ function calculateFinal(){
   }
   latestRanking=alternatives.map(a=>({title:a.title,score:weights.reduce((s,w)=>s+(a.scores[w.id]||5)*w.weight,0)*10})).sort((a,b)=>b.score-a.score);
   let defaultTitle = curLang==='en' ? 'Decision Analysis' : 'Karar Analizi';
-  let title=esc($('#decisionTitle').value.trim() || defaultTitle);
+  let title=esc(savedDecisionTitle || defaultTitle);
   let btnText = curLang==='en' ? '📄 Export / Print Decision Report' : '📄 Karar Raporunu Yazdır / PDF Al';
   
   $('#finalArea').innerHTML=`
@@ -1064,23 +1136,37 @@ function go(n){
   scrollTo({top:0,behavior:'smooth'});
 }
 
-// Logo tıklandığında ana sayfaya dönüş kontrolü
+// Logo tıklandığında sıfırlama ve ana sayfaya dönüş
 function handleLogoClick(e){
   e.preventDefault();
-  let hasChanges = criteria.length > 0 || alternatives.length > 0 || page > 0 || $('#decisionTitle').value.trim() !== '';
+  let hasChanges = criteria.length > 0 || alternatives.length > 0 || page > 0 || savedDecisionTitle !== '';
   
   if(hasChanges){
     let msg = curLang === 'en' 
-      ? 'Do you want to return to the home screen? Any unsaved progress will remain as is.' 
-      : 'Ana ekrana dönmek istiyor musunuz?';
+      ? 'Returning to the home screen will reset all current criteria and choices. Do you want to continue?' 
+      : 'Ana ekrana dönüldüğünde mevcut tüm kriter ve seçimleriniz sıfırlanacaktır. Devam etmek istiyor musunuz?';
     if(!confirm(msg)) return;
   }
   
+  resetAllData();
   if(location.hash !== '#decision' && location.hash !== '') {
     location.hash = '#decision';
   }
   go(0);
 }
+
+// Başlık Kaydetme İşlevi
+$('#saveTitleBtn').onclick = () => {
+  let val = $('#decisionTitleInput').value.trim();
+  if(val) setTitle(val);
+};
+
+$('#decisionTitleInput').onkeydown = e => {
+  if(e.key === 'Enter') {
+    let val = $('#decisionTitleInput').value.trim();
+    if(val) setTitle(val);
+  }
+};
 
 $('#brandLogo').onclick = handleLogoClick;
 $('#addCriterion').onclick=addCriterion;
@@ -1122,11 +1208,23 @@ document.oninput=e=>{
   }
 };
 
+// Dil değişimi kontrolü (Onay alıp sıfırlayarak ana sayfaya yönlendirir)
 $$('[data-language]').forEach(b => {
   b.onclick = () => {
     let newLang = b.dataset.language;
     if (newLang === curLang) return;
+    
+    let hasChanges = criteria.length > 0 || alternatives.length > 0 || page > 0 || savedDecisionTitle !== '';
+    if(hasChanges){
+      let msg = curLang === 'en'
+        ? 'Changing the language will reset all current criteria and choices. Do you want to continue?'
+        : 'Dil değiştirildiğinde mevcut tüm kriter ve seçimleriniz sıfırlanacaktır. Devam etmek istiyor musunuz?';
+      if(!confirm(msg)) return;
+    }
+    
+    resetAllData();
     setLanguage(newLang);
+    go(0);
   };
 });
 
