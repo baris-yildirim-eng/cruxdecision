@@ -566,7 +566,7 @@
           <label for="decisionTitle" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
             <span data-ui-lang="en">What are you deciding on?</span><span data-ui-lang="tr">Ne hakkında karar vermek istiyorsunuz?</span>
           </label>
-          <input id="decisionTitle" placeholder="E.g. 2026 Vehicle Selection, Career Move…" value="Decision Analysis">
+          <input id="decisionTitle" placeholder="E.g. 2026 Vehicle Selection, Career Move…" >
         </div>
 
         <div class="template-section">
@@ -754,11 +754,6 @@
 const RI={1:0,2:0,3:.58,4:.9,5:1.12,6:1.24,7:1.32,8:1.41,9:1.45};
 let page=0, weights=[], cr=0;
 let curLang = localStorage.getItem('crux-language') || 'en';
-
-const defaultCriteriaMap = {
-  en: ['Cost', 'Quality', 'Execution Speed'],
-  tr: ['Maliyet', 'Kalite', 'Uygulama Hızı']
-};
 
 let criteria = defaultCriteriaMap[curLang].map(title => ({ id: crypto.randomUUID(), title }));
 let comparisons={}, alternatives=[];
