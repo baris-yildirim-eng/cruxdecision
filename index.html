@@ -566,7 +566,7 @@
           <label for="decisionTitle" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
             <span data-ui-lang="en">What are you deciding on?</span><span data-ui-lang="tr">Ne hakkında karar vermek istiyorsunuz?</span>
           </label>
-          <input id="decisionTitle" placeholder="E.g. 2026 Vehicle Selection, Career Move…" >
+          <input id="decisionTitle" placeholder="E.g. 2026 Vehicle Selection, Career Move…" value="">
         </div>
 
         <div class="template-section">
@@ -755,7 +755,7 @@ const RI={1:0,2:0,3:.58,4:.9,5:1.12,6:1.24,7:1.32,8:1.41,9:1.45};
 let page=0, weights=[], cr=0;
 let curLang = localStorage.getItem('crux-language') || 'en';
 
-let criteria = defaultCriteriaMap[curLang].map(title => ({ id: crypto.randomUUID(), title }));
+let criteria = [];
 let comparisons={}, alternatives=[];
 
 const templateData={
@@ -1067,9 +1067,7 @@ function go(n){
 // Logo tıklandığında ana sayfaya dönüş kontrolü
 function handleLogoClick(e){
   e.preventDefault();
-  let oldDefaults = defaultCriteriaMap[curLang];
-  let isDefault = criteria.length === oldDefaults.length && criteria.every((c, idx) => c.title === oldDefaults[idx]);
-  let hasChanges = !isDefault || alternatives.length > 0 || page > 0;
+  let hasChanges = criteria.length > 0 || alternatives.length > 0 || page > 0 || $('#decisionTitle').value.trim() !== '';
   
   if(hasChanges){
     let msg = curLang === 'en' 
@@ -1101,7 +1099,6 @@ document.onclick=e=>{
   if(id=e.target.dataset.delA){alternatives=alternatives.filter(a=>a.id!==id);renderAlts()}
   if(e.target.hasAttribute('data-undo-result')){$('#finalArea').innerHTML='';$('#criterionSelect').focus();document.querySelector('.view[data-view="3"] .card').scrollIntoView({behavior:'smooth',block:'start'})}
   
-  // Hem adım butonlarına hem de içindeki metin / i etiketine tıklanmayı yakala
   let stepBtn = e.target.closest('[data-go]');
   if(stepBtn){
     go(+stepBtn.dataset.go);
@@ -1129,13 +1126,6 @@ $$('[data-language]').forEach(b => {
   b.onclick = () => {
     let newLang = b.dataset.language;
     if (newLang === curLang) return;
-    
-    let oldDefaults = defaultCriteriaMap[curLang];
-    let isDefault = criteria.length === oldDefaults.length && criteria.every((c, idx) => c.title === oldDefaults[idx]);
-    if (isDefault) {
-      criteria = defaultCriteriaMap[newLang].map(title => ({ id: crypto.randomUUID(), title }));
-    }
-    
     setLanguage(newLang);
   };
 });
