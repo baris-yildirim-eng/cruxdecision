@@ -68,7 +68,17 @@
       flex-direction: column;
       z-index: 10;
     }
-    .brand { font: 800 23px Manrope, sans-serif; letter-spacing: -1px; display: flex; align-items: center; gap: 10px; }
+    .brand {
+      font: 800 23px Manrope, sans-serif;
+      letter-spacing: -1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: none;
+      color: inherit;
+    }
     .mark {
       width: 30px;
       height: 30px;
@@ -95,6 +105,7 @@
       transition: .2s ease;
       touch-action: manipulation;
     }
+    .step:hover { color: #fff; background: rgba(255,255,255,.05); }
     .step i {
       width: 27px;
       height: 27px;
@@ -124,7 +135,7 @@
     .main { padding: 28px 5vw 50px; min-width: 0; }
     .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 14px; }
     .eyebrow { font-size: 12px; color: var(--muted); font-weight: 600; }
-    .status { font-size: 12px; background: #e9ecf4; padding: 8px 14px; border-radius: 99px; font-weight: 700; }
+    .status { font-size: 12px; background: #e9ecf4; padding: 8px 14px; border-radius: 99px; font-weight: 700; white-space: nowrap; }
     .view { display: none; animation: up .25s ease; }
     .view.active { display: block; }
     @keyframes up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -438,10 +449,10 @@
     .contact-success { display: none; margin-top: 13px; padding: 12px; border-radius: 11px; background: #eeedf9; color: var(--green); font-size: 12px; font-weight: 700; }
     .contact-success.show { display: block; }
 
-    /* Clean Mobile Optimization */
+    /* Responsive Design Adjustments */
     @media (max-width: 900px) {
-      .top { align-items: flex-start; flex-wrap: wrap; margin-bottom: 20px; }
-      .site-nav { order: 3; width: 100%; justify-content: center; margin-top: 4px; }
+      .top { align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+      .site-nav { order: 3; width: 100%; justify-content: center; margin-top: 6px; }
       .method-grid, .contact-layout, .method-origin { grid-template-columns: 1fr; }
       .origin-name { border-right: 0; border-bottom: 1px solid #394258; padding-right: 0; padding-bottom: 16px; }
     }
@@ -450,17 +461,17 @@
       .side {
         height: auto;
         position: static;
-        padding: 14px 16px;
-        background: #fff;
-        color: var(--ink);
-        border-bottom: 1px solid var(--line);
+        padding: 12px 16px;
+        background: #111a2d;
+        color: #fff;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
       }
       .side .brand { font-size: 18px; }
-      .side .mark { width: 22px; height: 22px; border-width: 6px; }
+      .side .mark { width: 22px; height: 22px; border-width: 5px; }
       .tag, .side-note { display: none !important; }
+      
       .steps {
         display: flex !important;
         gap: 6px;
@@ -471,23 +482,24 @@
         border-radius: 50%;
         background: transparent !important;
       }
+      .step .step-txt { display: none; }
       .step i {
         width: 28px;
         height: 28px;
-        border: 1px solid var(--line);
-        color: var(--muted);
-        background: #f7f8fc;
+        border: 1px solid #33405b;
+        color: #adb7c9;
+        background: #172033;
         font-size: 11px;
       }
       .step.active i {
-        background: var(--green) !important;
-        border-color: var(--green) !important;
-        color: #fff !important;
+        background: var(--lime) !important;
+        border-color: var(--lime) !important;
+        color: #111a2d !important;
       }
       .step.done i {
-        background: #e6e5fb !important;
-        border-color: #e6e5fb !important;
-        color: var(--green) !important;
+        background: #2b3956 !important;
+        border-color: #2b3956 !important;
+        color: var(--lime) !important;
       }
       .main { padding: 18px 16px 40px; }
       .grid, .result-grid { grid-template-columns: 1fr; }
@@ -507,7 +519,9 @@
 <body>
 <div class="shell">
   <aside class="side">
-    <div class="brand"><span class="mark" aria-hidden="true"></span>Crux Decision</div>
+    <a href="#decision" class="brand" id="brandLogo" title="Crux Decision Home">
+      <span class="mark" aria-hidden="true"></span>Crux Decision
+    </a>
     <div class="tag"><span data-ui-lang="en">Decision journey</span><span data-ui-lang="tr">Karar yolculuğu</span></div>
     <div class="steps" id="steps"></div>
     <div class="side-note">
@@ -1041,10 +1055,13 @@ function calculateFinal(){
 }
 
 function go(n){
-  if(n>0&&criteria.length<2){alert(curLang==='en'?'Please add at least two criteria.':'Lütfen en az iki kriter ekleyin.');return}
-  if(n===1)prepareComparisons();
-  if(n>=2){calculateAHP();renderFinalSetup()}
-  page=n;
+  if(n>0 && criteria.length<2){
+    alert(curLang==='en'?'Please add at least two criteria.':'Lütfen en az iki kriter ekleyin.');
+    return;
+  }
+  if(n===1) prepareComparisons();
+  if(n>=2){ calculateAHP(); renderFinalSetup(); }
+  page = n;
   $$('.view').forEach((v,i)=>v.classList.toggle('active',i===page));
   $('#back').style.visibility=page?'visible':'hidden';
   $('#next').style.display=page===3?'none':'inline-flex';
@@ -1052,6 +1069,27 @@ function go(n){
   scrollTo({top:0,behavior:'smooth'});
 }
 
+// Logo tıklandığında ana sayfaya dönüş kontrolü
+function handleLogoClick(e){
+  e.preventDefault();
+  let oldDefaults = defaultCriteriaMap[curLang];
+  let isDefault = criteria.length === oldDefaults.length && criteria.every((c, idx) => c.title === oldDefaults[idx]);
+  let hasChanges = !isDefault || alternatives.length > 0 || page > 0;
+  
+  if(hasChanges){
+    let msg = curLang === 'en' 
+      ? 'Do you want to return to the home screen? Any unsaved progress will remain as is.' 
+      : 'Ana ekrana dönmek istiyor musunuz?';
+    if(!confirm(msg)) return;
+  }
+  
+  if(location.hash !== '#decision' && location.hash !== '') {
+    location.hash = '#decision';
+  }
+  go(0);
+}
+
+$('#brandLogo').onclick = handleLogoClick;
 $('#addCriterion').onclick=addCriterion;
 $('#criterionInput').onkeydown=e=>{if(e.key==='Enter')addCriterion()};
 $('#addAlt').onclick=addAlt;
@@ -1067,7 +1105,12 @@ document.onclick=e=>{
   if(id=e.target.dataset.delC){criteria=criteria.filter(c=>c.id!==id);renderCriteria()}
   if(id=e.target.dataset.delA){alternatives=alternatives.filter(a=>a.id!==id);renderAlts()}
   if(e.target.hasAttribute('data-undo-result')){$('#finalArea').innerHTML='';$('#criterionSelect').focus();document.querySelector('.view[data-view="3"] .card').scrollIntoView({behavior:'smooth',block:'start'})}
-  if(e.target.dataset.go!==undefined&&+e.target.dataset.go<=page)go(+e.target.dataset.go);
+  
+  // Hem adım butonlarına hem de içindeki metin / i etiketine tıklanmayı yakala
+  let stepBtn = e.target.closest('[data-go]');
+  if(stepBtn){
+    go(+stepBtn.dataset.go);
+  }
 };
 
 document.oninput=e=>{
