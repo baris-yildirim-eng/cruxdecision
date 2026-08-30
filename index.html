@@ -708,6 +708,7 @@
       </div>
     </header>
     
+    <!-- DECISION WIZARD -->
     <div id="decisionPage" class="content-page active">
       <section class="view active" data-view="0">
         <h1>
@@ -719,6 +720,7 @@
           <span data-ui-lang="tr">Karar konunuzu ve kriterlerinizi belirleyin veya aşağıdaki hazır senaryolardan biriyle hızlıca başlayın.</span>
         </p>
 
+        <!-- Soru Odaklı Karar Konusu ve Ekleme/Kaldırma Mekanizması -->
         <div class="card" style="margin-bottom:20px;padding:18px 22px;background:#ffffff;border:1px solid #dbe1ee;">
           <label for="decisionTitleInput" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
             <span data-ui-lang="en">What are you deciding on?</span><span data-ui-lang="tr">Ne hakkında karar vermek istiyorsunuz?</span>
@@ -855,6 +857,7 @@
       </div>
     </div>
 
+    <!-- METHODOLOGY -->
     <section id="methodologyPage" class="content-page">
       <div data-method-lang="tr">
         <div class="page-hero"><span class="page-kicker">CRUX DECISION’IN ARDINDAKİ BİLİM</span><h1>Öznel Tercihlerden Matematiksel Karara</h1><p class="lead">Crux Decision, insan yargılarını ölçülebilir önceliklere dönüştürür. Böylece her kararın hangi matematiksel süreçten geldiği açıkça görülebilir.</p></div>
@@ -916,6 +919,7 @@
       </div>
     </section>
 
+    <!-- CONTACT -->
     <section id="contactPage" class="content-page">
       <div class="page-hero">
         <span class="page-kicker"><span data-ui-lang="en">Let’s build it together</span><span data-ui-lang="tr">Birlikte geliştirelim</span></span>
@@ -941,9 +945,9 @@
             <textarea id="feedbackMessage" name="message" required placeholder="What could we do better?"></textarea>
           </div>
           <button class="btn" type="submit"><span data-ui-lang="en">Send suggestion →</span><span data-ui-lang="tr">Öneriyi gönder →</span></button>
-          <p class="form-note"><span data-ui-lang="en">The send button creates a ready-to-send message in your default email app.</span><span data-ui-lang="tr">Gönder düğmesi varsayılan e-posta uygulamanızda hazır bir mesaj oluşturur.</span></p>
+          <p class="form-note"><span data-ui-lang="en">Your message will be delivered directly to our team.</span><span data-ui-lang="tr">Öneriniz doğrudan ekibimize iletilecektir.</span></p>
           <div class="contact-success" id="contactSuccess">
-            <span data-ui-lang="en">Your email app is opening. Thank you!</span><span data-ui-lang="tr">E-posta uygulamanız açılıyor. Teşekkür ederiz!</span>
+            <span data-ui-lang="en">Your feedback has been received. Thank you!</span><span data-ui-lang="tr">Geri bildiriminiz başarıyla iletildi. Teşekkür ederiz!</span>
           </div>
         </form>
       </div>
@@ -951,6 +955,7 @@
   </main>
 </div>
 
+<!-- TUTORIAL VIDEO MODAL -->
 <div class="video-modal-backdrop" id="videoModal">
   <div class="video-modal-container">
     <div class="video-modal-head">
@@ -1466,13 +1471,45 @@ $('#back').style.visibility='hidden';
   addEventListener('hashchange',route);
   route();
 
-  $('#feedbackForm').addEventListener('submit',e=>{
+  // Google Apps Script API İletişim Formu Entegrasyonu
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTNug-3yB9nSc6l49S5qvB3NCNAxTiHP3xvck8ir5NqusSDRL33P9lazeCSHTvZp85/exec';
+
+  $('#feedbackForm').addEventListener('submit', async e => {
     e.preventDefault();
-    let name=$('#feedbackName').value.trim(), email=$('#feedbackEmail').value.trim(), message=$('#feedbackMessage').value.trim();
-    let subject = curLang==='en' ? 'Crux Decision — Feedback' : 'Crux Decision — Geri Bildirim';
-    let body = curLang==='en' ? `Name: ${name}\nEmail: ${email}\n\nFeedback:\n${message}` : `Ad: ${name}\nE-posta: ${email}\n\nÖneri:\n${message}`;
-    $('#contactSuccess').classList.add('show');
-    location.href=`mailto:cruxdecision@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.textContent = curLang === 'en' ? 'Sending...' : 'Gönderiliyor...';
+
+    const payload = {
+      name: $('#feedbackName').value.trim(),
+      email: $('#feedbackEmail').value.trim(),
+      message: $('#feedbackMessage').value.trim()
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      $('#feedbackForm').reset();
+      $('#contactSuccess').classList.add('show');
+      submitBtn.textContent = curLang === 'en' ? 'Sent ✓' : 'Gönderildi ✓';
+
+      setTimeout(() => {
+        $('#contactSuccess').classList.remove('show');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }, 4000);
+    } catch (err) {
+      alert(curLang === 'en' ? 'Error sending message. Please try again.' : 'Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
   });
 })();
 </script>
