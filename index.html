@@ -13,7 +13,6 @@
   <link rel="canonical" href="https://cruxdecision.app/">
   <meta name="theme-color" content="#111a2d">
 
-  <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cruxdecision.app/">
   <meta property="og:title" content="Crux Decision — Solve the Equation of Choice">
@@ -258,6 +257,21 @@
     .tip { display: flex; gap: 12px; line-height: 1.5; color: var(--muted); font-size: 13px; }
     .tip strong { color: var(--ink); }
     .tip-icon { flex: 0 0 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--lime); color: #172033; font-weight: 800; }
+    
+    .privacy-badge {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px dashed #cfd5e3;
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .privacy-badge strong { color: var(--ink); }
+
     .nav { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
     .compare-list { display: grid; gap: 14px; }
     .compare { padding: 20px; background: white; border: 1px solid var(--line); border-radius: 18px; }
@@ -447,7 +461,7 @@
     .page-kicker { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
     .method-origin {
       display: grid;
-      grid-template-columns: 160px 1fr;
+      grid-template-columns: 180px 1fr;
       gap: 26px;
       align-items: center;
       background: #172033;
@@ -457,7 +471,7 @@
       margin-bottom: 18px;
     }
     .origin-name { border-right: 1px solid #394258; padding-right: 24px; }
-    .origin-name strong { display: block; font: 800 21px Manrope, sans-serif; color: var(--lime); }
+    .origin-name strong { display: block; font: 800 18px Manrope, sans-serif; color: var(--lime); line-height: 1.25; margin-bottom: 4px; }
     .origin-name span { font-size: 12px; color: #aeb7ca; }
     .method-origin p { margin: 0; color: #c2c9d7; font-size: 14px; line-height: 1.7; }
     .method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -469,8 +483,35 @@
     .method-card li { font-size: 12px; color: #4e596e; padding-left: 17px; position: relative; }
     .method-card li:before { content: '•'; position: absolute; left: 2px; color: var(--green); font-weight: 900; }
     .science-label { font: 800 13px Manrope, sans-serif; margin: 28px 0 12px; }
-    .scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 15px; }
-    .scale span { background: #f0effc; color: var(--green); border-radius: 7px; padding: 7px 2px; text-align: center; font-size: 10px; font-weight: 800; }
+    
+    /* Geliştirilmiş, Temiz ve Düzenli Saaty Ölçeği Kartları */
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .scale-item {
+      background: #f0effc;
+      border: 1px solid #d5d3f7;
+      border-radius: 10px;
+      padding: 10px 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .scale-num {
+      font: 800 15px Manrope, sans-serif;
+      color: var(--green);
+    }
+    .scale-desc {
+      font-size: 11px;
+      font-weight: 600;
+      color: #556075;
+      line-height: 1.2;
+    }
+
     .formula-note { margin-top: 18px; background: #ecebfd; color: var(--ink); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 18px; }
     .formula-note b { color: var(--green); white-space: nowrap; }
     .science-close { margin: 18px 0 4px; padding: 30px; border-radius: 22px; background: linear-gradient(135deg, #4f46a5, #2f3979); color: white; font: 700 18px Manrope, sans-serif; line-height: 1.4; }
@@ -566,6 +607,7 @@
       .site-nav { order: 3; width: 100%; justify-content: center; margin-top: 6px; }
       .method-grid, .contact-layout, .method-origin { grid-template-columns: 1fr; }
       .origin-name { border-right: 0; border-bottom: 1px solid #394258; padding-right: 0; padding-bottom: 16px; }
+      .scale-grid { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 800px) {
       .shell { display: block; }
@@ -619,6 +661,7 @@
       .alt { grid-template-columns: 1fr 1.6fr 36px 24px; gap: 8px; }
       .formula-note { flex-direction: column; align-items: flex-start; }
       h1 { font-size: 26px; }
+      .scale-grid { grid-template-columns: repeat(2, 1fr); }
     }
     
     html[lang="tr"] [data-method-lang="en"],
@@ -665,7 +708,6 @@
       </div>
     </header>
     
-    <!-- DECISION WIZARD -->
     <div id="decisionPage" class="content-page active">
       <section class="view active" data-view="0">
         <h1>
@@ -677,7 +719,6 @@
           <span data-ui-lang="tr">Karar konunuzu ve kriterlerinizi belirleyin veya aşağıdaki hazır senaryolardan biriyle hızlıca başlayın.</span>
         </p>
 
-        <!-- Soru Odaklı Karar Konusu ve Ekleme/Kaldırma Mekanizması -->
         <div class="card" style="margin-bottom:20px;padding:18px 22px;background:#ffffff;border:1px solid #dbe1ee;">
           <label for="decisionTitleInput" style="font:700 13px Manrope, sans-serif;color:var(--ink);display:block;margin-bottom:8px">
             <span data-ui-lang="en">What are you deciding on?</span><span data-ui-lang="tr">Ne hakkında karar vermek istiyorsunuz?</span>
@@ -724,6 +765,14 @@
                 <span data-ui-lang="en">3–6 independent criteria make an analysis both comprehensive and easy to compare.</span>
                 <span data-ui-lang="tr">3–6 bağımsız kriter, hem yeterince kapsamlı hem de karşılaştırması kolay bir analiz sağlar.</span>
               </div></div>
+            </div>
+            <div class="privacy-badge">
+              <span>🔒</span>
+              <div>
+                <strong><span data-ui-lang="en">Your Data Stays on Your Device:</span><span data-ui-lang="tr">Verileriniz Cihazınızda Kalır:</span></strong>
+                <span data-ui-lang="en"> Your choices and criteria are processed locally and never stored on remote servers.</span>
+                <span data-ui-lang="tr"> Girdiğiniz kriter ve kararlar hiçbir sunucuya iletilmez, yalnızca sizin ekranınızda işlenir.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -806,15 +855,31 @@
       </div>
     </div>
 
-    <!-- METHODOLOGY -->
     <section id="methodologyPage" class="content-page">
       <div data-method-lang="tr">
         <div class="page-hero"><span class="page-kicker">CRUX DECISION’IN ARDINDAKİ BİLİM</span><h1>Öznel Tercihlerden Matematiksel Karara</h1><p class="lead">Crux Decision, insan yargılarını ölçülebilir önceliklere dönüştürür. Böylece her kararın hangi matematiksel süreçten geldiği açıkça görülebilir.</p></div>
-        <div class="method-origin"><div class="origin-name"><strong>Thomas L. Saaty</strong><span>AHP’nin Geliştiricisi</span></div><p>Analitik Hiyerarşi Prosesi (AHP), Wharton School profesörü ve matematikçi Thomas L. Saaty tarafından geliştirilmiştir. Çok kriterli ve yarışan parametreleri rasyonel biçimde çözmede dünyada en yaygın kabul gören karar modelidir.</p></div>
+        <div class="method-origin">
+          <div class="origin-name">
+            <strong>Prof. Thomas L. Saaty</strong>
+            <span>AHP’nin Kurucusu &amp; Öncü Matematikçi</span>
+          </div>
+          <p>Analitik Hiyerarşi Prosesi (AHP), karar bilimlerinin saygıdeğer öncülerinden matematikçi Prof. Thomas L. Saaty tarafından Wharton School’daki araştırmalarıyla temellendirilmiş ve uzun yıllar görev yaptığı Pittsburgh Üniversitesi’nde olgunlaştırılmıştır. AHP; yarışan kriterleri rasyonel, şeffaf ve ölçülebilir bir zeminde uzlaştırmada dünya çapında kabul gören altın standart karar modelidir.</p>
+        </div>
         <div class="science-label">ÜÇ ADIMDA NASIL ÇALIŞIR?</div>
         <div class="method-grid">
           <article class="method-card"><span class="method-num">01</span><h3>Hiyerarşiyi Yapılandırma</h3><p>Karar üç açık katmana ayrılır:</p><ul><li>Ulaşmak istediğiniz nihai hedef</li><li>İyi bir seçimi tanımlayan kriterler</li><li>Değerlendirilen alternatifler</li></ul></article>
-          <article class="method-card"><span class="method-num">02</span><h3>İkili Karşılaştırma Matrisi</h3><p>Kriterler, Saaty’nin 1–9 ölçeği kullanılarak ikişerli karşılaştırılır. Karşılıklı değerlerden oluşan matris normalize edilerek her kriterin öncelik ağırlığı hesaplanır.</p><div class="scale"><span>1 Eşit</span><span>3 Orta</span><span>5 Güçlü</span><span>7 Çok güçlü</span><span>9 Aşırı</span></div></article>
+          <article class="method-card">
+            <span class="method-num">02</span>
+            <h3>İkili Karşılaştırma Matrisi</h3>
+            <p>Kriterler, Saaty’nin 1–9 ölçeği kullanılarak ikişerli karşılaştırılır. Karşılıklı değerlerden oluşan matris normalize edilerek her kriterin öncelik ağırlığı hesaplanır.</p>
+            <div class="scale-grid">
+              <div class="scale-item"><span class="scale-num">1</span><span class="scale-desc">Eşit</span></div>
+              <div class="scale-item"><span class="scale-num">3</span><span class="scale-desc">Orta</span></div>
+              <div class="scale-item"><span class="scale-num">5</span><span class="scale-desc">Güçlü</span></div>
+              <div class="scale-item"><span class="scale-num">7</span><span class="scale-desc">Çok Güçlü</span></div>
+              <div class="scale-item"><span class="scale-num">9</span><span class="scale-desc">Aşırı</span></div>
+            </div>
+          </article>
           <article class="method-card"><span class="method-num">03</span><h3>Tutarlılık Oranı — CR</h3><p>CR, karşılaştırmalarınızın birbiriyle mantıksal olarak uyumlu olup olmadığını denetler. <strong>CR ≤ 0,10</strong> sonucu kabul edilebilir bir tutarlılık seviyesini gösterir.</p><ul><li>CR ≤ 0,10: Tutarlı ve mantıklı</li><li>CR &gt; 0,10: Karşılaştırmaları gözden geçirin</li></ul></article>
         </div>
         <div class="formula-note"><b>Final Skoru:</b><span>Her alternatifin 1–10 arasındaki performans puanı, ilgili kriterin ağırlığıyla çarpılır. Bu ağırlıklı katkılar toplanarak final sıralaması oluşturulur.</span></div>
@@ -822,11 +887,28 @@
       </div>
       <div data-method-lang="en">
         <div class="page-hero"><span class="page-kicker">THE SCIENCE BEHIND CRUX DECISION</span><h1>From Subjective Choices to Mathematical Decisions</h1><p class="lead">Crux Decision turns human judgment into measurable priorities—so every choice can be traced back to a proven mathematical optimization.</p></div>
-        <div class="method-origin"><div class="origin-name"><strong>Thomas L. Saaty</strong><span>Creator of AHP</span></div><p>The Analytic Hierarchy Process was developed by Wharton School professor and mathematician Thomas L. Saaty. It remains the gold-standard framework for multi-criteria decision making.</p></div>
+        <div class="method-origin">
+          <div class="origin-name">
+            <strong>Prof. Thomas L. Saaty</strong>
+            <span>Creator of AHP &amp; Distinguished Mathematician</span>
+          </div>
+          <p>The Analytic Hierarchy Process was conceived by the distinguished mathematician Prof. Thomas L. Saaty during his tenure at the Wharton School and further advanced throughout his long academic career at the University of Pittsburgh. It remains the global gold-standard framework for resolving complex multi-criteria decisions with mathematical rigor.</p>
+        </div>
         <div class="science-label">HOW IT WORKS — IN THREE STEPS</div>
         <div class="method-grid">
           <article class="method-card"><span class="method-num">01</span><h3>Structuring the Hierarchy</h3><p>The decision is separated into three clear layers:</p><ul><li>The goal you want to achieve</li><li>The criteria that define a good choice</li><li>The alternatives being evaluated</li></ul></article>
-          <article class="method-card"><span class="method-num">02</span><h3>Pairwise Comparison Matrix</h3><p>Criteria are compared two at a time using Saaty’s 1–9 scale. The reciprocal matrix is normalized to calculate a priority weight for every criterion.</p><div class="scale"><span>1 Equal</span><span>3 Moderate</span><span>5 Strong</span><span>7 Very strong</span><span>9 Extreme</span></div></article>
+          <article class="method-card">
+            <span class="method-num">02</span>
+            <h3>Pairwise Comparison Matrix</h3>
+            <p>Criteria are compared two at a time using Saaty’s 1–9 scale. The reciprocal matrix is normalized to calculate a priority weight for every criterion.</p>
+            <div class="scale-grid">
+              <div class="scale-item"><span class="scale-num">1</span><span class="scale-desc">Equal</span></div>
+              <div class="scale-item"><span class="scale-num">3</span><span class="scale-desc">Moderate</span></div>
+              <div class="scale-item"><span class="scale-num">5</span><span class="scale-desc">Strong</span></div>
+              <div class="scale-item"><span class="scale-num">7</span><span class="scale-desc">Very Strong</span></div>
+              <div class="scale-item"><span class="scale-num">9</span><span class="scale-desc">Extreme</span></div>
+            </div>
+          </article>
           <article class="method-card"><span class="method-num">03</span><h3>Consistency Ratio — CR</h3><p>CR checks whether your comparisons agree with one another. A result of <strong>CR ≤ 0.10</strong> indicates an acceptable level of logical consistency.</p><ul><li>CR ≤ 0.10: Consistent</li><li>CR &gt; 0.10: Review comparisons</li></ul></article>
         </div>
         <div class="formula-note"><b>Final Score:</b><span>Each alternative’s 1–10 performance score is multiplied by the relevant criterion weight. These weighted contributions are added to produce the final ranking.</span></div>
@@ -834,7 +916,6 @@
       </div>
     </section>
 
-    <!-- CONTACT -->
     <section id="contactPage" class="content-page">
       <div class="page-hero">
         <span class="page-kicker"><span data-ui-lang="en">Let’s build it together</span><span data-ui-lang="tr">Birlikte geliştirelim</span></span>
@@ -870,16 +951,13 @@
   </main>
 </div>
 
-<!-- TUTORIAL VIDEO MODAL -->
 <div class="video-modal-backdrop" id="videoModal">
   <div class="video-modal-container">
     <div class="video-modal-head">
       <span><span data-ui-lang="en">How Crux Decision Works</span><span data-ui-lang="tr">Crux Decision Nasıl Çalışır?</span></span>
       <button type="button" class="video-modal-close" id="closeVideoModal" aria-label="Close video">✕</button>
     </div>
-    <div class="video-modal-body">
-      <iframe id="tutorialIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
+    <div class="video-modal-body" id="videoBody"></div>
   </div>
 </div>
 
@@ -940,12 +1018,27 @@ function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;',
 // Video Modal Açma / Kapama Fonksiyonları
 function openTutorial() {
   const videoId = tutorialVideos[curLang] || tutorialVideos.en;
-  $('#tutorialIframe').src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+  const ytWatchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const linkText = curLang === 'en' ? 'Watch on YouTube ↗' : 'YouTube’da İzle ↗';
+
+  $('#videoBody').innerHTML = `
+    <iframe 
+      src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+      title="Crux Decision Tutorial"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen>
+    </iframe>
+    <div style="position:absolute;bottom:10px;right:14px;z-index:10;">
+      <a href="${ytWatchUrl}" target="_blank" rel="noopener" style="color:#f4b860;font-size:12px;font-weight:700;text-decoration:none;background:rgba(17,26,45,0.85);padding:4px 10px;border-radius:6px;border:1px solid #33405b;">
+        ${linkText}
+      </a>
+    </div>
+  `;
   $('#videoModal').classList.add('active');
 }
 
 function closeTutorial() {
-  $('#tutorialIframe').src = '';
+  $('#videoBody').innerHTML = '';
   $('#videoModal').classList.remove('active');
 }
 
