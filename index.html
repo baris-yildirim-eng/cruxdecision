@@ -804,9 +804,9 @@
             <h3><span data-ui-lang="en">Consistency ratio</span><span data-ui-lang="tr">Tutarlılık oranı</span></h3>
             <div class="ring" id="ring"><b id="crValue">0.00</b></div>
             <div id="crMessage"></div>
-            <p style="font-size:12px;color:var(--muted);line-height:1.5">
-              <span data-ui-lang="en">CR ≤ 0.10 indicates that your comparisons are logically consistent.</span>
-              <span data-ui-lang="tr">CR ≤ 0.10, karşılaştırmalarınızın mantıksal olarak tutarlı olduğunu gösterir.</span>
+            <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px">
+              <span data-ui-lang="en"><strong>CR ≤ 0.10</strong> indicates logical consistency. (e.g., If <strong>A &gt; B</strong> and <strong>B &gt; C</strong>, selecting <strong>C &gt; A</strong> creates a contradiction and increases CR. Adjust conflicting ratings to fix it).</span>
+              <span data-ui-lang="tr"><strong>CR ≤ 0.10</strong> kararlarınızın mantıksal olarak tutarlı olduğunu gösterir. (Örn: <strong>A &gt; B</strong> ve <strong>B &gt; C</strong> iken <strong>C &gt; A</strong> seçilirse çelişki oluşur ve CR yükselir. Zıtlaşan puanları düzenleyin).</span>
             </p>
           </div>
         </div>
@@ -1029,7 +1029,7 @@ function openTutorial() {
   $('#videoBody').innerHTML = `
     <iframe 
       src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
-      title="Crux Decision Tutorial"
+      title="Crux Decision Tutorial" 
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
       allowfullscreen>
     </iframe>
